@@ -1,0 +1,5 @@
+# pg_function_catalog.control
+comment = 'Function catalog for LLM query generation'
+default_version = '1.0'
+module_pathname = '$libdir/pg_function_catalog'
+relocatable = true
