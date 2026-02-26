@@ -18,3 +18,40 @@ COMMENT ON FUNCTION get_function_info(text) IS
 -- Example usage in comment
 COMMENT ON FUNCTION get_function_info(text) IS
  'Example: SELECT get_function_info(''substring'')';
+
+
+-- New table-returning function
+CREATE FUNCTION pg_function_info_table(function_name text)
+RETURNS TABLE (
+ func_name text,
+ schema_name text,
+ return_type text,
+ arguments text,
+ description text,
+ func_type text
+)
+AS 'MODULE_PATHNAME', 'pg_function_info_table'
+LANGUAGE C STRICT STABLE;
+COMMENT ON FUNCTION pg_function_info_table(text) IS
+ 'Returns function information as a table (can return multiple overloads)';
+-- Convenience view for all built-in functions
+CREATE VIEW pg_all_functions AS
+SELECT DISTINCT
+ p.proname AS function_name,
+ n.nspname AS schema_name,
+ CASE p.prokind
+ WHEN 'f' THEN 'function'
+ WHEN 'a' THEN 'aggregate'
+ WHEN 'w' THEN 'window'
+ WHEN 'p' THEN 'procedure'
+ END AS function_type
+FROM pg_proc p
+JOIN pg_namespace n ON p.pronamespace = n.oid
+WHERE n.nspname IN ('pg_catalog', 'information_schema')
+ORDER BY p.proname;
+COMMENT ON VIEW pg_all_functions IS
+ 'List of all PostgreSQL built-in functions';
+
+
+ 
+
