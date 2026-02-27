@@ -53,5 +53,13 @@ COMMENT ON VIEW pg_all_functions IS
  'List of all PostgreSQL built-in functions';
 
 
- 
-
+DROP FUNCTION IF EXISTS list_all_functions();
+CREATE OR REPLACE FUNCTION list_all_functions(
+    OUT func_name   text,
+    OUT schema_name text,
+    OUT return_type text,
+    OUT func_type   text
+)
+RETURNS SETOF RECORD
+AS '$libdir/pg_function_catalog', 'list_all_functions'
+LANGUAGE C STABLE;
